@@ -1,0 +1,443 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+   --primary: #2563eb;
+   --secondary: #f59e0b;
+   --danger: #dc2626;
+   --dark: #1e293b;
+   --light: #f8fafc;
+   --grey: #64748b;
+   --white: #ffffff;
+   --border-color: #e2e8f0;
+   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+   --transition: all 0.3s ease;
+}
+
+* {
+   font-family: 'Poppins', sans-serif;
+   margin: 0;
+   padding: 0;
+   box-sizing: border-box;
+   outline: none;
+   border: none;
+   text-decoration: none;
+   transition: var(--transition);
+}
+
+*::selection {
+   background-color: var(--primary);
+   color: var(--white);
+}
+
+::-webkit-scrollbar {
+   width: 8px;
+   height: 8px;
+}
+
+::-webkit-scrollbar-track {
+   background-color: var(--light);
+}
+
+::-webkit-scrollbar-thumb {
+   background-color: var(--primary);
+   border-radius: 4px;
+}
+
+html {
+   font-size: 62.5%;
+   overflow-x: hidden;
+}
+
+body {
+   background-color: var(--light);
+   color: var(--dark);
+   line-height: 1.6;
+}
+
+section {
+   padding: 3rem 2rem;
+   max-width: 1200px;
+   margin: 0 auto;
+}
+
+.heading {
+   font-size: 3.2rem;
+   color: var(--dark);
+   margin-bottom: 2.5rem;
+   text-align: center;
+   font-weight: 600;
+}
+
+/* Buttons */
+.btn,
+.delete-btn,
+.option-btn {
+   display: inline-block;
+   width: auto;
+   min-width: 15rem;
+   padding: 1.2rem 2.4rem;
+   border-radius: 0.8rem;
+   font-size: 1.6rem;
+   font-weight: 500;
+   cursor: pointer;
+   text-align: center;
+   transition: var(--transition);
+}
+
+.btn {
+   background-color: var(--primary);
+   color: var(--white);
+}
+
+.btn:hover {
+   background-color: #1d4ed8;
+   transform: translateY(-2px);
+}
+
+.option-btn {
+   background-color: var(--secondary);
+   color: var(--white);
+}
+
+.option-btn:hover {
+   background-color: #d97706;
+   transform: translateY(-2px);
+}
+
+.delete-btn {
+   background-color: var(--danger);
+   color: var(--white);
+}
+
+.delete-btn:hover {
+   background-color: #b91c1c;
+   transform: translateY(-2px);
+}
+
+.flex-btn {
+   display: flex;
+   gap: 1rem;
+   flex-wrap: wrap;
+}
+
+/* Messages */
+.message {
+   position: sticky;
+   top: 0;
+   max-width: 1200px;
+   margin: 0 auto;
+   background-color: var(--white);
+   padding: 2rem;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   gap: 1.5rem;
+   z-index: 1100;
+   box-shadow: var(--shadow);
+   border-radius: 0.8rem;
+   margin: 2rem auto;
+}
+
+.message span {
+   font-size: 1.8rem;
+   color: var(--dark);
+}
+
+.message i {
+   cursor: pointer;
+   color: var(--danger);
+   font-size: 2.5rem;
+}
+
+.message i:hover {
+   color: var(--dark);
+}
+
+/* Form Styles */
+.form-container {
+   min-height: 100vh;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+.form-container form {
+   background-color: var(--white);
+   padding: 3rem;
+   border-radius: 1rem;
+   box-shadow: var(--shadow);
+   width: 50rem;
+   text-align: center;
+}
+
+.form-container form h3 {
+   font-size: 2.5rem;
+   color: var(--dark);
+   margin-bottom: 1rem;
+   text-transform: uppercase;
+}
+
+.form-container form .box {
+   width: 100%;
+   margin: 1rem 0;
+   padding: 1.4rem;
+   font-size: 1.8rem;
+   color: var(--dark);
+   border: 1px solid var(--border-color);
+   border-radius: 0.8rem;
+   background-color: var(--light);
+}
+
+.form-container form .box:focus {
+   border-color: var(--primary);
+   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+/* Header Styles */
+.header {
+   position: sticky;
+   top: 0;
+   background-color: var(--white);
+   box-shadow: var(--shadow);
+   z-index: 1000;
+}
+
+.header .flex {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   padding: 2rem;
+   margin: 0 auto;
+   max-width: 1200px;
+}
+
+.header .flex .logo {
+   font-size: 2.5rem;
+   color: var(--dark);
+   font-weight: 600;
+}
+
+.header .flex .logo span {
+   color: var(--primary);
+}
+
+.header .flex .navbar {
+   display: flex;
+   gap: 2rem;
+}
+
+.header .flex .navbar a {
+   font-size: 1.8rem;
+   color: var(--dark);
+   padding: 0.5rem 1rem;
+   border-radius: 0.5rem;
+}
+
+.header .flex .navbar a:hover {
+   background-color: var(--primary);
+   color: var(--white);
+}
+
+.header .flex .icons {
+   display: flex;
+   gap: 1.5rem;
+}
+
+.header .flex .icons div {
+   font-size: 2.2rem;
+   cursor: pointer;
+   color: var(--dark);
+   padding: 0.5rem;
+   border-radius: 0.5rem;
+}
+
+.header .flex .icons div:hover {
+   background-color: var(--light);
+   color: var(--primary);
+}
+
+/* Profile Dropdown */
+.header .flex .profile {
+   position: absolute;
+   top: 120%;
+   right: 2rem;
+   background-color: var(--white);
+   border-radius: 0.8rem;
+   box-shadow: var(--shadow);
+   padding: 2rem;
+   width: 30rem;
+   display: none;
+   animation: fadeIn 0.2s linear;
+}
+
+.header .flex .profile.active {
+   display: inline-block;
+}
+
+/* Dashboard */
+.dashboard .box-container {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(27rem, 1fr));
+   gap: 2rem;
+   align-items: flex-start;
+}
+
+.dashboard .box-container .box {
+   background-color: var(--white);
+   padding: 2rem;
+   border-radius: 1rem;
+   box-shadow: var(--shadow);
+   text-align: center;
+}
+
+.dashboard .box-container .box h3 {
+   font-size: 2.7rem;
+   color: var(--dark);
+}
+
+.dashboard .box-container .box p {
+   margin: 1.5rem 0;
+   padding: 1.5rem;
+   background-color: var(--light);
+   border-radius: 0.8rem;
+   font-size: 1.8rem;
+   color: var(--grey);
+}
+
+/* Products */
+.add-products form {
+   max-width: 70rem;
+   margin: 0 auto;
+   background-color: var(--white);
+   box-shadow: var(--shadow);
+   border-radius: 1rem;
+   padding: 2rem;
+}
+
+.add-products form .flex {
+   display: flex;
+   gap: 1.5rem;
+   flex-wrap: wrap;
+}
+
+.add-products form .flex .inputBox {
+   flex: 1 1 25rem;
+}
+
+.add-products form span {
+   font-size: 1.7rem;
+   color: var(--grey);
+}
+
+.add-products form .box {
+   font-size: 1.8rem;
+   background-color: var(--light);
+   border-radius: 0.8rem;
+   padding: 1.4rem;
+   width: 100%;
+   margin-top: 1.5rem;
+}
+
+.show-products .box-container {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+   gap: 2rem;
+   justify-content: center;
+}
+
+.show-products .box-container .box {
+   background-color: var(--white);
+   border-radius: 1rem;
+   box-shadow: var(--shadow);
+   padding: 2rem;
+}
+
+.show-products .box-container .box img {
+   width: 100%;
+   height: 20rem;
+   object-fit: contain;
+   margin-bottom: 1.5rem;
+}
+
+.show-products .box-container .box .name {
+   font-size: 2rem;
+   color: var(--dark);
+}
+
+.show-products .box-container .box .price {
+   font-size: 2rem;
+   color: var(--primary);
+   margin: 0.5rem 0;
+}
+
+.show-products .box-container .box .details {
+   font-size: 1.5rem;
+   color: var(--grey);
+   line-height: 2;
+}
+
+/* Orders */
+.orders .box-container {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+   gap: 2rem;
+   align-items: flex-start;
+}
+
+.orders .box-container .box {
+   background-color: var(--white);
+   padding: 2rem;
+   border-radius: 1rem;
+   box-shadow: var(--shadow);
+}
+
+.orders .box-container .box p {
+   line-height: 1.5;
+   font-size: 1.8rem;
+   color: var(--grey);
+   margin: 1rem 0;
+}
+
+.orders .box-container .box p span {
+   color: var(--primary);
+}
+
+/* Media Queries */
+@media (max-width: 991px) {
+   html {
+      font-size: 55%;
+   }
+}
+
+@media (max-width: 768px) {
+   #menu-btn {
+      display: inline-block;
+   }
+   
+   .header .flex .navbar {
+      position: absolute;
+      top: 99%;
+      left: 0;
+      right: 0;
+      background-color: var(--white);
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+      transition: 0.2s linear;
+   }
+
+   .header .flex .navbar.active {
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+   }
+
+   .header .flex .navbar a {
+      display: block;
+      margin: 2rem;
+   }
+}
+
+@media (max-width: 450px) {
+   html {
+      font-size: 50%;
+   }
+}
