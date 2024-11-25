@@ -129,30 +129,45 @@ if(isset($_GET['pid'])){
 
 <script>
 function changeImage(element) {
-   document.getElementById('main-image').src = element.src;
-   // Remove active class from all thumbnails
-   document.querySelectorAll('.image-thumbnails img').forEach(img => {
-      img.classList.remove('active');
-   });
-   // Add active class to clicked thumbnail
-   element.classList.add('active');
+    document.getElementById('main-image').src = element.src;
+    document.querySelectorAll('.quick-view-thumbnails img').forEach(img => {
+        img.classList.remove('active');
+    });
+    element.classList.add('active');
 }
 
 // Quantity controls
-document.querySelectorAll('.qty-btn').forEach(button => {
-   button.addEventListener('click', function() {
-      const input = this.parentElement.querySelector('.qty');
-      let value = parseInt(input.value);
-      
-      if(this.classList.contains('plus') && value < 99) {
-         input.value = value + 1;
-      }
-      else if(this.classList.contains('minus') && value > 1) {
-         input.value = value - 1;
-      }
-   });
+document.addEventListener('DOMContentLoaded', function() {
+    const minusBtn = document.querySelector('.quick-view-qty-btn.minus');
+    const plusBtn = document.querySelector('.quick-view-qty-btn.plus');
+    const qtyInput = document.querySelector('.quick-view-qty-input');
+
+    plusBtn.addEventListener('click', function() {
+        let currentValue = parseInt(qtyInput.value);
+        if (currentValue < 99) {
+            qtyInput.value = currentValue + 1;
+        }
+    });
+
+    minusBtn.addEventListener('click', function() {
+        let currentValue = parseInt(qtyInput.value);
+        if (currentValue > 1) {
+            qtyInput.value = currentValue - 1;
+        }
+    });
+
+    // Prevent manual input of invalid values
+    qtyInput.addEventListener('change', function() {
+        let value = parseInt(this.value);
+        if (isNaN(value) || value < 1) {
+            this.value = 1;
+        } else if (value > 99) {
+            this.value = 99;
+        }
+    });
 });
 </script>
+
 
 </body>
 </html>

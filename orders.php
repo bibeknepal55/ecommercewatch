@@ -106,15 +106,9 @@ if(isset($_GET['delete'])){
                </div>
 
                <div class="order-footer">
-                  <a href="orders.php?delete=<?= $fetch_orders['id']; ?>" 
-                     class="delete-btn" 
-                     onclick="return confirm('Delete this order?');">
+                  <a href="orders.php?delete=<?= $fetch_orders['id']; ?>" class="track-btn" onclick="return confirm('Delete this order?');">
                      <i class="fas fa-trash"></i>
                      Delete Order
-                  </a>
-                  <a href="#" class="track-btn">
-                     <i class="fas fa-truck"></i>
-                     Track Order
                   </a>
                </div>
             </div>

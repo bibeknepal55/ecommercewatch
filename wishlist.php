@@ -18,6 +18,32 @@ if(isset($_POST['delete'])){
    $message[] = 'Wishlist item deleted successfully';
 }
 
+// Add to cart from wishlist
+if(isset($_POST['add_to_cart'])){
+   $pid = $_POST['pid'];
+   $name = $_POST['name'];
+   $price = $_POST['price'];
+   $image = $_POST['image'];
+   $qty = $_POST['qty'] ?? 1; // Default quantity is 1
+
+   // Check if product already exists in cart
+   $check_cart_numbers = $conn->prepare("SELECT * FROM `cart` WHERE pid = ? AND user_id = ?");
+   $check_cart_numbers->execute([$pid, $user_id]);
+
+   if($check_cart_numbers->rowCount() > 0){
+      $message[] = 'Already added to cart!';
+   }else{
+      try {
+         // Insert into cart
+         $insert_cart = $conn->prepare("INSERT INTO `cart`(user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
+         $insert_cart->execute([$user_id, $pid, $name, $price, $qty, $image]);
+         $message[] = 'Added to cart successfully!';
+      } catch(PDOException $e) {
+         $message[] = 'Error adding to cart: ' . $e->getMessage();
+      }
+   }
+}
+
 // Delete all items from wishlist
 if(isset($_GET['delete_all'])){
    $delete_wishlist = $conn->prepare("DELETE FROM `wishlist` WHERE user_id = ?");
@@ -42,75 +68,69 @@ if(isset($_GET['delete_all'])){
 
 <section class="wishlist">
    <div class="container">
-      <!-- Page Title -->
       <div class="page-title">
          <h1>My Wishlist</h1>
          <p>Products you have saved for later</p>
       </div>
 
-      <!-- Wishlist Content -->
       <div class="wishlist-content">
          <?php
          $grand_total = 0;
-         $select_wishlist = $conn->prepare("SELECT wishlist.*, products.name AS product_name 
-                                          FROM `wishlist` 
-                                          JOIN `products` ON wishlist.pid = products.id 
-                                          WHERE user_id = ?");
+         $select_wishlist = $conn->prepare("SELECT * FROM `wishlist` WHERE user_id = ?");
          $select_wishlist->execute([$user_id]);
          if($select_wishlist->rowCount() > 0){
          ?>
-         <!-- Wishlist Grid -->
          <div class="wishlist-grid">
             <?php
             while($fetch_wishlist = $select_wishlist->fetch(PDO::FETCH_ASSOC)){
                $grand_total += $fetch_wishlist['price'];
             ?>
             <div class="wishlist-card">
-               <form action="" method="post" class="wishlist-form">
-                  <input type="hidden" name="pid" value="<?= $fetch_wishlist['pid']; ?>">
-                  <input type="hidden" name="wishlist_id" value="<?= $fetch_wishlist['id']; ?>">
-                  <input type="hidden" name="name" value="<?= $fetch_wishlist['name']; ?>">
-                  <input type="hidden" name="price" value="<?= $fetch_wishlist['price']; ?>">
-                  <input type="hidden" name="image" value="<?= $fetch_wishlist['image']; ?>">
-
-                  <!-- Product Image -->
-                  <div class="wishlist-image">
-                     <img src="uploaded_img/<?= $fetch_wishlist['image']; ?>" alt="<?= $fetch_wishlist['name']; ?>">
+               <!-- Separate forms for delete and add to cart actions -->
+               <div class="wishlist-image">
+                  <img src="uploaded_img/<?= $fetch_wishlist['image']; ?>" alt="<?= $fetch_wishlist['name']; ?>">
+                  <form action="" method="post" class="delete-form">
+                     <input type="hidden" name="wishlist_id" value="<?= $fetch_wishlist['id']; ?>">
                      <button type="submit" name="delete" class="delete-btn" onclick="return confirm('Delete this item?');">
                         <i class="fas fa-times"></i>
                      </button>
-                  </div>
+                  </form>
+               </div>
 
-                  <!-- Product Info -->
-                  <div class="wishlist-info">
-                     <h3 class="product-name"><?= $fetch_wishlist['name']; ?></h3>
-                     <div class="price">
-                        <span class="currency">Nrs.
-                        <span class="amount"><?= number_format($fetch_wishlist['price']); ?>
-                     </div>
+               <div class="wishlist-info">
+                  <h3 class="product-name"><?= $fetch_wishlist['name']; ?></h3>
+                  <div class="price">
+                     <span class="currency">Nrs.</span>
+                     <span class="amount"><?= number_format($fetch_wishlist['price']); ?></span>
+                  </div>
+                  
+                  <div class="wishlist-actions">
+                     <a href="quick_view.php?pid=<?= $fetch_wishlist['pid']; ?>" class="view-btn">
+                        <i class="fas fa-eye"></i>
+                        <span>View Details</span>
+                     </a>
                      
-                     <div class="wishlist-actions">
-                        <a href="quick_view.php?pid=<?= $fetch_wishlist['pid']; ?>" class="view-btn">
-                           <i class="fas fa-eye"></i>
-                           <span>View Details
-                        </a>
+                     <form action="" method="post" class="cart-form">
+                        <input type="hidden" name="pid" value="<?= $fetch_wishlist['pid']; ?>">
+                        <input type="hidden" name="name" value="<?= $fetch_wishlist['name']; ?>">
+                        <input type="hidden" name="price" value="<?= $fetch_wishlist['price']; ?>">
+                        <input type="hidden" name="image" value="<?= $fetch_wishlist['image']; ?>">
                         <button type="submit" name="add_to_cart" class="cart-btn">
                            <i class="fas fa-shopping-cart"></i>
-                           <span>Add to Cart
+                           <span>Add to Cart</span>
                         </button>
-                     </div>
+                     </form>
                   </div>
-               </form>
+               </div>
             </div>
             <?php
             }
             ?>
          </div>
 
-         <!-- Wishlist Summary -->
          <div class="wishlist-summary">
             <p class="grand-total">
-               Total Amount: <span>Nrs. <?= number_format($grand_total); ?>/-
+               Total Amount: <span>Nrs. <?= number_format($grand_total); ?>/-</span>
             </p>
             <div class="wishlist-buttons">
                <a href="shop.php" class="continue-btn">Continue Shopping</a>

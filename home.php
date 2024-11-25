@@ -49,10 +49,10 @@ include 'components/wishlist_cart.php';
             <span><font color="black">Easy Returns</font>
         </div>
     </div>
-</section>
+</section><br><br>
 
 <!-- Categories Section -->
-<section class="categories">
+<!-- <section class="categories">
     <div class="section-header">
         <h2>Shop by Category</h2>
         <p>Browse our wide selection of products</p>
@@ -65,16 +65,9 @@ include 'components/wishlist_cart.php';
             <h3>Watches</h3>
             <span class="category-arrow">→
         </a>
-        <!-- <a href="category.php?category=laptop" class="category-card">
-            <div class="category-icon">
-                <img src="images/icon-1.png" alt="Laptop">
-            </div>
-            <h3>Laptops</h3>
-            <span class="category-arrow">→
-        </a> -->
-        <!-- Add other categories similarly -->
+        
     </div>
-</section>
+</section> -->
 
 <!-- Featured Products -->
 <section class="featured-products">
@@ -141,7 +134,7 @@ include 'components/wishlist_cart.php';
             <div class="offer-content">
                 <h3>Premium Watches</h3>
                 <p>Up to 50% off on selected items</p>
-                <a href="shop.php?category=luxury" class="offer-btn">Shop Now</a>
+                <a href="shop.php?sort=price-high" class="offer-btn">Shop Now</a>
             </div>
             <img src="images/home-img-1.png" alt="Premium Watches">
         </div>
@@ -149,7 +142,7 @@ include 'components/wishlist_cart.php';
             <div class="offer-content">
                 <h3>Latest Watches</h3>
                 <p>New arrivals with special launch prices</p>
-                <a href="shop.php?category=all" class="offer-btn">Shop Now</a>
+                <a href="shop.php" class="offer-btn">Shop Now</a>
             </div>
             <img src="images/home-img-2.png" alt="Smartphones">
         </div>

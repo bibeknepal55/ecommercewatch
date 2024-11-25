@@ -10,9 +10,6 @@ if(isset($_SESSION['user_id'])){
 
 include 'components/wishlist_cart.php';
 
-// Get category filter
-$category = isset($_GET['category']) ? $_GET['category'] : 'all';
-
 // Get price range filter
 $min_price = isset($_GET['min_price']) ? (int)$_GET['min_price'] : 0;
 $max_price = isset($_GET['max_price']) ? (int)$_GET['max_price'] : 1000000;
@@ -38,92 +35,57 @@ $sort = isset($_GET['sort']) ? $_GET['sort'] : 'latest';
 <section class="shop">
    <div class="container">
       <div class="page-header">
-         <h1>Our Collection</h1>
-         <p>Discover our Exclusive Range of Luxury Timepieces</p>
+         <div class="header-content">
+            <h1>Our Collection of Watches</h1>
+         </div>
+         
+         <div class="filter-sort-container">
+         <!-- Price Filter (Left) -->
+         <div class="price-filter">
+            <form class="price-range" method="GET">
+                  <div class="range-inputs">
+                     <input type="number" name="min_price" placeholder="Min Price" 
+                           value="<?= $min_price ?>" min="0">
+                     <span>-</span>
+                     <input type="number" name="max_price" placeholder="Max Price" 
+                           value="<?= $max_price ?>" min="0">
+                  
+                  <button type="submit" class="apply-filter">Apply</button>
+                  </div>
+            </form>
+         </div>
+
+         <!-- Filter Title (Center) -->
+         <h2 class="filter-title">Filter Products</h2>
+
+            <!-- Sort Options (Right) -->
+            <div class="sort-options">
+               <select name="sort" onchange="location = this.value;">
+                  <option value="?sort=latest" <?= $sort === 'latest' ? 'selected' : '' ?>>Latest</option>
+                  <option value="?sort=price-low" <?= $sort === 'price-low' ? 'selected' : '' ?>>Price: Low to High</option>
+                  <option value="?sort=price-high" <?= $sort === 'price-high' ? 'selected' : '' ?>>Price: High to Low</option>
+                  <option value="?sort=name-asc" <?= $sort === 'name-asc' ? 'selected' : '' ?>>Name: A to Z</option>
+               </select>
+            </div>
+            </div>
+         </div>
       </div>
 
       <div class="shop-container">
-         <!-- Filters Sidebar -->
-         <aside class="filters-sidebar">
-            <div class="filter-section">
-               <h3>Categories</h3>
-               <ul class="category-list">
-                  <li>
-                     <a href="?category=all" class="<?= $category === 'all' ? 'active' : '' ?>">
-                        All Categories
-                     </a>
-                  </li>
-                  <li>
-                     <a href="?category=luxury" class="<?= $category === 'luxury' ? 'active' : '' ?>">
-                        Luxury Watches
-                     </a>
-                  </li>
-                  <li>
-                     <a href="?category=sport" class="<?= $category === 'sport' ? 'active' : '' ?>">
-                        Sport Watches
-                     </a>
-                  </li>
-                  <li>
-                     <a href="?category=casual" class="<?= $category === 'casual' ? 'active' : '' ?>">
-                        Casual Watches
-                     </a>
-                  </li>
-               </ul>
-            </div>
-
-            <div class="filter-section">
-               <h3>Price Range</h3>
-               <form class="price-range">
-                  <div class="range-inputs">
-                     <input type="number" name="min_price" placeholder="Min" 
-                            value="<?= $min_price ?>" min="0">
-                     <span>-
-                     <input type="number" name="max_price" placeholder="Max" 
-                            value="<?= $max_price ?>" min="0">
-                  </div>
-                  <button type="submit" class="apply-filter">Apply Filter</button>
-               </form>
-            </div>
-         </aside>
-
          <!-- Products Section -->
          <div class="products-section">
-            <div class="products-header">
-               <div class="results-count">
-                  <?php
-                  $count_query = $conn->prepare("SELECT COUNT(*) as total FROM `products`");
-                  $count_query->execute();
-                  $total = $count_query->fetch(PDO::FETCH_ASSOC)['total'];
-                  echo "<span>{$total} Products Found";
-                  ?>
-               </div>
-               
-               <div class="sort-options">
-                  <select onchange="location = this.value;">
-                     <option value="?sort=latest" <?= $sort === 'latest' ? 'selected' : '' ?>>
-                        Latest
-                     </option>
-                     <option value="?sort=price-low" <?= $sort === 'price-low' ? 'selected' : '' ?>>
-                        Price: Low to High
-                     </option>
-                     <option value="?sort=price-high" <?= $sort === 'price-high' ? 'selected' : '' ?>>
-                        Price: High to Low
-                     </option>
-                     <option value="?sort=name-asc" <?= $sort === 'name-asc' ? 'selected' : '' ?>>
-                        Name: A to Z
-                     </option>
-                  </select>
-               </div>
+            <div class="results-count">
+               <?php
+               $count_query = $conn->prepare("SELECT COUNT(*) as total FROM `products`");
+               $count_query->execute();
+               $total = $count_query->fetch(PDO::FETCH_ASSOC)['total'];
+               echo "<span>{$total} Products Found</span>";
+               ?>
             </div>
 
             <div class="products-grid">
                <?php
                   $query = "SELECT * FROM `products` WHERE 1";
-                  
-                  // Apply category filter
-                  if($category !== 'all') {
-                     $query .= " AND category = :category";
-                  }
                   
                   // Apply price filter
                   $query .= " AND price BETWEEN :min_price AND :max_price";
@@ -146,9 +108,6 @@ $sort = isset($_GET['sort']) ? $_GET['sort'] : 'latest';
                   $select_products = $conn->prepare($query);
                   
                   // Bind parameters
-                  if($category !== 'all') {
-                     $select_products->bindParam(':category', $category);
-                  }
                   $select_products->bindParam(':min_price', $min_price);
                   $select_products->bindParam(':max_price', $max_price);
                   
@@ -179,7 +138,7 @@ $sort = isset($_GET['sort']) ? $_GET['sort'] : 'latest';
                      <div class="product-content">
                         <h3 class="product-name"><?= $fetch_product['name']; ?></h3>
                         <div class="product-price">
-                           <span class="price">Nrs. <?= number_format($fetch_product['price']); ?>/-
+                           <span class="price">Nrs. <?= number_format($fetch_product['price']); ?>/-</span>
                         </div>
                         <div class="product-details">
                            <div class="quantity">
@@ -188,7 +147,7 @@ $sort = isset($_GET['sort']) ? $_GET['sort'] : 'latest';
                            </div>
                            <button type="submit" name="add_to_cart" class="add-to-cart">
                               <i class="fas fa-shopping-cart"></i>
-                              <span>Add to Cart
+                              <span>Add to Cart</span>
                            </button>
                         </div>
                      </div>
