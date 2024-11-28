@@ -1138,6 +1138,127 @@
    color: var(--white);
 }
 
+/* Register and Login*/
+
+.form-container {
+   min-height: 80vh; 
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 2rem;
+   background-color: #f8f9fa;
+}
+
+.form-container form .btn {
+   width: 100%;
+   background-color: #4CAF50;
+   color: white;
+   padding: 1.2rem;
+   border: none;
+   border-radius: 5px;
+   cursor: pointer;
+   font-size: 1.4rem; 
+   margin: 1rem 0;
+   transition: background-color 0.3s ease;
+   font-weight: 500; 
+}
+
+.form-container form .option-btn {
+   display: block;
+   width: 100%;
+   background-color: #2196F3;
+   color: white;
+   padding: 1.2rem;
+   border: none;
+   border-radius: 5px;
+   cursor: pointer;
+   font-size: 1.4rem; 
+   margin-top: 1rem;
+   text-align: center;
+   text-decoration: none;
+   transition: background-color 0.3s ease;
+   font-weight: 500;
+}
+
+.form-container form h3 {
+   text-align: center;
+   font-size: 2.5rem;
+   margin-bottom: 1.5rem;
+   color: #333;
+   text-transform: capitalize;
+}
+
+.form-container form .box {
+   width: 100%;
+   padding: 1.2rem 1.4rem;
+   border: 1px solid #ddd;
+   border-radius: 5px;
+   background-color: #f8f9fa;
+   margin: 1rem 0;
+   font-size: 1.1rem;
+}
+
+.form-container form .box:focus {
+   border-color: #4CAF50;
+   outline: none;
+}
+
+.form-container form .btn {
+   width: 100%;
+   background-color: #4CAF50;
+   color: white;
+   padding: 1.2rem;
+   border: none;
+   border-radius: 5px;
+   cursor: pointer;
+   font-size: 1.1rem;
+   margin: 1rem 0;
+   transition: background-color 0.3s ease;
+}
+
+.form-container form .btn:hover {
+   background-color: #45a049;
+}
+
+.form-container form p {
+   text-align: center;
+   margin-top: 1.5rem;
+   font-size: 1rem;
+   color: #666;
+}
+
+.form-container form .option-btn {
+   display: block;
+   width: 100%;
+   background-color: #2196F3;
+   color: white;
+   padding: 1.2rem;
+   border: none;
+   border-radius: 5px;
+   cursor: pointer;
+   font-size: 1.1rem;
+   margin-top: 1rem;
+   text-align: center;
+   text-decoration: none;
+   transition: background-color 0.3s ease;
+}
+
+.form-container form .option-btn:hover {
+   background-color: #1976D2;
+}
+
+/* Responsive adjustments */
+@media (max-width: 450px) {
+   .form-container form {
+       padding: 1.5rem;
+   }
+   
+   .form-container form h3 {
+       font-size: 2rem;
+   }
+}
+
+
 /* Navigation */
 .main-nav {
    margin-top: 2rem;
@@ -2943,18 +3064,23 @@ textarea.form-control {
    margin-bottom: 5rem;
 }
 
-/* Map */
-.map {
-   border-radius: 1rem;
-   overflow: hidden;
-   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.map iframe {
+/* Contact Img */
+.contact-img {
    width: 100%;
    height: 100%;
-   min-height: 45rem;
+   position: relative;
+   overflow: hidden;
+   border-radius: 10px; 
 }
+
+.contact-img img {
+   width: 100%;
+   height: 100%;
+   object-fit: cover;
+   display: block;
+   border-radius: 10px; 
+}
+
 
 /* Contact Form */
 .contact-form {

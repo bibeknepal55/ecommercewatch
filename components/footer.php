@@ -93,18 +93,10 @@
                 </p>
                 <div class="footer-payment">
                     <span>We Accept:</span>
-                    <img src="images/payment-methods/visa.png" alt="Visa">
-                    <img src="images/payment-methods/mastercard.png" alt="Mastercard">
-                    <img src="images/payment-methods/paypal.png" alt="PayPal">
+                    <img src="images/payment-methods/esewa.png" alt="esewa">
+                    <img src="images/payment-methods/khalti.png" alt="khalti">
                 </div>
             </div>
         </div>
     </div>
 </footer>
-
-<!-- Make sure these payment method images exist in your project -->
-<!-- Download these images and save them in your images/payment-methods/ directory -->
-
-<!-- Visa Logo: https://i.ibb.co/L8KSdNQ/visa.png -->
-<!-- Mastercard Logo: https://i.ibb.co/QfZ3tRq/mastercard.png -->
-<!-- PayPal Logo: https://i.ibb.co/LzYRfPV/paypal.png -->

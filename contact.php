@@ -106,13 +106,8 @@ if(isset($message)){
 
       <!-- Contact Form Section -->
       <div class="contact-section">
-         <div class="map">
-            <iframe 
-               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d56516.31397712412!2d85.3261328!3d27.7172453!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb198a307baabf%3A0xb5137c1bf18db1ea!2sKathmandu%2044600%2C%20Nepal!5e0!3m2!1sen!2s!4v1639913549653!5m2!1sen!2s" 
-               style="border:0;" 
-               allowfullscreen="" 
-               loading="lazy">
-            </iframe>
+         <div class="contact-img">
+            <img src="./images/watch-contact-us.jpg">
          </div>
 
          <div class="contact-form">
