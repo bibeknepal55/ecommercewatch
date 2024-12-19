@@ -43,7 +43,6 @@ if(isset($_GET['delete'])){
    <div class="box-container">
 
    <div class="box">
-      <p>Add New Admin</p>
       <a href="register_admin.php" class="option-btn">Register Admin</a>
    </div>
 
@@ -51,22 +50,33 @@ if(isset($_GET['delete'])){
       $select_accounts = $conn->prepare("SELECT * FROM `admins`");
       $select_accounts->execute();
       if($select_accounts->rowCount() > 0){
-         while($fetch_accounts = $select_accounts->fetch(PDO::FETCH_ASSOC)){   
    ?>
-   <div class="box">
-      <p> Admin Id : <span><?= $fetch_accounts['id']; ?></span> </p>
-      <p> Admin name : <span><?= $fetch_accounts['name']; ?></span> </p>
-      <div class="flex-btn">
-         <a href="admin_accounts.php?delete=<?= $fetch_accounts['id']; ?>" onclick="return confirm('delete this account?')" class="delete-btn">delete</a>
-         <?php
-            if($fetch_accounts['id'] == $admin_id){
-               echo '<a href="update_profile.php" class="option-btn">update</a>';
-            }
-         ?>
-      </div>
+   <div class="table-container">
+      <table>
+         <thead>
+            <tr>
+               <th>Admin ID</th>
+               <th>Admin Name</th>
+               <th>Actions</th>
+            </tr>
+         </thead>
+         <tbody>
+         <?php while($fetch_accounts = $select_accounts->fetch(PDO::FETCH_ASSOC)){ ?>
+            <tr>
+               <td><?= $fetch_accounts['id']; ?></td>
+               <td><?= $fetch_accounts['name']; ?></td>
+               <td>
+                  <a href="admin_accounts.php?delete=<?= $fetch_accounts['id']; ?>" class="delete-btn" onclick="return confirm('delete this account?');">Delete</a>
+                  <?php if($fetch_accounts['id'] == $admin_id): ?>
+                     <a href="update_profile.php" class="option-btn">Update</a>
+                  <?php endif; ?>
+               </td>
+            </tr>
+         <?php } ?>
+         </tbody>
+      </table>
    </div>
    <?php
-         }
       }else{
          echo '<p class="empty">no accounts available!</p>';
       }

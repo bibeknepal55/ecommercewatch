@@ -68,6 +68,47 @@ section {
    font-weight: 600;
 }
 
+.table-container {
+   overflow-x: auto;
+   margin: 2rem 0;
+}
+
+table {
+   width: 100%;
+   border-collapse: collapse;
+   background-color: var(--white);
+   box-shadow: var(--shadow);
+   border-radius: .5rem;
+}
+
+th, td {
+   padding: 1.5rem;
+   text-align: left;
+   border-bottom: 1px solid var(--border-color);
+   font-size: 1.6rem;
+}
+
+th {
+   background-color: var(--primary);
+   color: var(--white);
+   font-weight: 600;
+   white-space: nowrap;
+}
+
+tr:hover {
+   background-color: var(--light);
+}
+
+.status-pending {
+   color: var(--secondary);
+   font-weight: 600;
+}
+
+.status-completed {
+   color: #16a34a;
+   font-weight: 600;
+}
+
 /* Buttons */
 .btn,
 .delete-btn,

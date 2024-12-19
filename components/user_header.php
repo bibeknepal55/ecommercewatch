@@ -45,9 +45,14 @@
 
                 <!-- Search Bar -->
                 <div class="search-bar">
-                    <form action="search_page.php" method="GET">
-                        <input type="text" name="search" placeholder="Search for products..." required>
-                        <button type="submit">
+                    <form action="search_page.php" method="GET" class="search-form">
+                        <input type="text" name="search" class="search-input" 
+                               placeholder="Search for products..." 
+                               minlength="1" maxlength="100"
+                               pattern="[A-Za-z0-9\s-]+" 
+                               title="Only letters, numbers, spaces and hyphens allowed"
+                               required>
+                        <button type="submit" class="search-btn" aria-label="Search">
                             <i class="fas fa-search"></i>
                         </button>
                     </form>
@@ -84,11 +89,9 @@
                                     $fetch_profile = $select_profile->fetch(PDO::FETCH_ASSOC);
                             ?>
                                 <div class="user-info">
-                                    <img src="uploaded_img/<?= $fetch_profile['image'] ?? 'default-avatar.png'; ?>" alt="">
                                     <p><?= $fetch_profile["name"]; ?></p>
                                 </div>
                                 <ul class="user-links">
-                                    <li><a href="profile.php"><i class="fas fa-user-circle"></i> My Profile</a></li>
                                     <li><a href="orders.php"><i class="fas fa-shopping-bag"></i> My Orders</a></li>
                                     <li><a href="update_user.php"><i class="fas fa-cog"></i> Settings</a></li>
                                     <li>

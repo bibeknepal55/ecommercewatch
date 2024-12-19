@@ -54,16 +54,32 @@ if(isset($_GET['delete'])){
       $select_accounts = $conn->prepare("SELECT * FROM `users`");
       $select_accounts->execute();
       if($select_accounts->rowCount() > 0){
-         while($fetch_accounts = $select_accounts->fetch(PDO::FETCH_ASSOC)){   
    ?>
-   <div class="box">
-      <p> User id : <span><?= $fetch_accounts['id']; ?></span> </p>
-      <p> Username : <span><?= $fetch_accounts['name']; ?></span> </p>
-      <p> Email : <span><?= $fetch_accounts['email']; ?></span> </p>
-      <a href="users_accounts.php?delete=<?= $fetch_accounts['id']; ?>" onclick="return confirm('delete this account? the user related information will also be delete!')" class="delete-btn">delete</a>
+   <div class="table-container">
+      <table>
+         <thead>
+            <tr>
+               <th>User ID</th>
+               <th>Username</th>
+               <th>Email</th>
+               <th>Actions</th>
+            </tr>
+         </thead>
+         <tbody>
+         <?php while($fetch_accounts = $select_accounts->fetch(PDO::FETCH_ASSOC)){ ?>
+            <tr>
+               <td><?= $fetch_accounts['id']; ?></td>
+               <td><?= $fetch_accounts['name']; ?></td>
+               <td><?= $fetch_accounts['email']; ?></td>
+               <td>
+                  <a href="users_accounts.php?delete=<?= $fetch_accounts['id']; ?>" class="delete-btn" onclick="return confirm('delete this account? the user related information will also be delete!');">Delete</a>
+               </td>
+            </tr>
+         <?php } ?>
+         </tbody>
+      </table>
    </div>
    <?php
-         }
       }else{
          echo '<p class="empty">no accounts available!</p>';
       }
