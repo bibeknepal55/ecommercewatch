@@ -10,6 +10,42 @@ if(isset($_SESSION['user_id'])){
 
 include 'components/wishlist_cart.php';
 
+// Handle AJAX requests
+if(isset($_POST['action']) && !empty($user_id)) {
+    $pid = $_POST['pid'];
+    $name = $_POST['name'];
+    $price = $_POST['price'];
+    $image = $_POST['image'];
+    $qty = $_POST['qty'];
+    
+    if($_POST['action'] == 'add_to_cart') {
+        $check_cart_numbers = $conn->prepare("SELECT * FROM `cart` WHERE name = ? AND user_id = ?");
+        $check_cart_numbers->execute([$name, $user_id]);
+
+        if($check_cart_numbers->rowCount() > 0){
+            echo 'already added to cart!';
+        }else{
+            $insert_cart = $conn->prepare("INSERT INTO `cart`(user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
+            $insert_cart->execute([$user_id, $pid, $name, $price, $qty, $image]);
+            echo 'added to cart!';
+        }
+    }
+    
+    if($_POST['action'] == 'add_to_wishlist') {
+        $check_wishlist_numbers = $conn->prepare("SELECT * FROM `wishlist` WHERE name = ? AND user_id = ?");
+        $check_wishlist_numbers->execute([$name, $user_id]);
+
+        if($check_wishlist_numbers->rowCount() > 0){
+            echo 'already added to wishlist!';
+        }else{
+            $insert_wishlist = $conn->prepare("INSERT INTO `wishlist`(user_id, pid, name, price, image) VALUES(?,?,?,?,?)");
+            $insert_wishlist->execute([$user_id, $pid, $name, $price, $image]);
+            echo 'added to wishlist!';
+        }
+    }
+    exit;
+}
+
 if(isset($_GET['pid'])){
    $pid = $_GET['pid'];
    $select_product = $conn->prepare("SELECT * FROM `products` WHERE id = ?");
@@ -67,8 +103,7 @@ if(isset($_GET['pid'])){
                 <div class="quick-view-header">
                     <h1 class="quick-view-title"><?= $fetch_product['name']; ?></h1>
                     <div class="quick-view-price">
-                        <span class="quick-view-current-price">Nrs. <?= number_format($fetch_product['price']); ?>/-
-                        
+                        <span class="quick-view-current-price">Nrs. <?= number_format($fetch_product['price']); ?>/-</span>
                     </div>
                 </div>
 
@@ -77,8 +112,7 @@ if(isset($_GET['pid'])){
                     <p><?= $fetch_product['details']; ?></p>
                 </div>
 
-
-                <form action="" method="post">
+                <form action="" method="post" class="product-form">
                     <input type="hidden" name="pid" value="<?= $fetch_product['id']; ?>">
                     <input type="hidden" name="name" value="<?= $fetch_product['name']; ?>">
                     <input type="hidden" name="price" value="<?= $fetch_product['price']; ?>">
@@ -94,11 +128,11 @@ if(isset($_GET['pid'])){
                     </div>
 
                     <div class="quick-view-actions">
-                        <button type="submit" name="add_to_cart" class="quick-view-btn quick-view-btn-primary">
+                        <button type="button" name="add_to_cart" class="quick-view-btn quick-view-btn-primary">
                             <i class="fas fa-shopping-cart"></i>
                             Add to Cart
                         </button>
-                        <button type="submit" name="add_to_wishlist" class="quick-view-btn quick-view-btn-secondary">
+                        <button type="button" name="add_to_wishlist" class="quick-view-btn quick-view-btn-secondary">
                             <i class="fas fa-heart"></i>
                             Add to Wishlist
                         </button>
@@ -108,15 +142,15 @@ if(isset($_GET['pid'])){
                 <div class="quick-view-additional">
                     <div class="quick-view-info-item">
                         <i class="fas fa-truck"></i>
-                        <span>Free Delivery
+                        <span>Free Delivery</span>
                     </div>
                     <div class="quick-view-info-item">
                         <i class="fas fa-undo"></i>
-                        <span>30 Days Return
+                        <span>30 Days Return</span>
                     </div>
                     <div class="quick-view-info-item">
                         <i class="fas fa-shield-alt"></i>
-                        <span>Secure Payment
+                        <span>Secure Payment</span>
                     </div>
                 </div>
             </div>
@@ -124,50 +158,129 @@ if(isset($_GET['pid'])){
     </div>
 </section>
 
-
 <?php include 'components/footer.php'; ?>
 
 <script>
-function changeImage(element) {
-    document.getElementById('main-image').src = element.src;
-    document.querySelectorAll('.quick-view-thumbnails img').forEach(img => {
-        img.classList.remove('active');
-    });
-    element.classList.add('active');
-}
-
-// Quantity controls
 document.addEventListener('DOMContentLoaded', function() {
+    // Get the form
+    const form = document.querySelector('.product-form');
+    
+    // Add click handlers for both buttons
+    const cartBtn = form.querySelector('[name="add_to_cart"]');
+    const wishlistBtn = form.querySelector('[name="add_to_wishlist"]');
+
+    if(cartBtn) {
+        cartBtn.onclick = function(e) {
+            e.preventDefault();
+            handleAction(form, 'add_to_cart');
+        };
+    }
+
+    if(wishlistBtn) {
+        wishlistBtn.onclick = function(e) {
+            e.preventDefault();
+            handleAction(form, 'add_to_wishlist');
+        };
+    }
+
+    function updateHeaderCounts(type) {
+        if(type === 'cart') {
+            const cartCounts = document.querySelectorAll('.cart-count, .count[data-type="cart"]');
+            cartCounts.forEach(count => {
+                let currentCount = parseInt(count.textContent) || 0;
+                count.textContent = currentCount + 1;
+            });
+        } else if(type === 'wishlist') {
+            const wishlistCounts = document.querySelectorAll('.wishlist-count, .count[data-type="wishlist"]');
+            wishlistCounts.forEach(count => {
+                let currentCount = parseInt(count.textContent) || 0;
+                count.textContent = currentCount + 1;
+            });
+        }
+    }
+
+    function handleAction(form, action) {
+        if('<?= $user_id ?>' === '') {
+            showMessage('please login first!', true);
+            return;
+        }
+
+        const formData = new FormData(form);
+        formData.append('action', action);
+
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            showMessage(data);
+            // Update counts only if item was successfully added (not "already added")
+            if (!data.includes('already')) {
+                if (action === 'add_to_cart') {
+                    updateHeaderCounts('cart');
+                } else if (action === 'add_to_wishlist') {
+                    updateHeaderCounts('wishlist');
+                }
+            }
+        })
+        .catch(error => {
+            showMessage('something went wrong!', true);
+            console.error('Error:', error);
+        });
+    }
+
+    function showMessage(msg) {
+        const message = document.createElement('div');
+        message.className = 'message';
+        message.innerHTML = `
+            <span>${msg}</span>
+            <i class="fas fa-times" onclick="this.parentElement.remove();"></i>
+        `;
+        document.body.appendChild(message);
+        setTimeout(() => message.remove(), 3000);
+    }
+
+    // Image gallery functionality
+    function changeImage(element) {
+        document.getElementById('main-image').src = element.src;
+        document.querySelectorAll('.quick-view-thumbnails img').forEach(img => {
+            img.classList.remove('active');
+        });
+        element.classList.add('active');
+    }
+
+    // Quantity controls
     const minusBtn = document.querySelector('.quick-view-qty-btn.minus');
     const plusBtn = document.querySelector('.quick-view-qty-btn.plus');
     const qtyInput = document.querySelector('.quick-view-qty-input');
 
-    plusBtn.addEventListener('click', function() {
-        let currentValue = parseInt(qtyInput.value);
-        if (currentValue < 99) {
-            qtyInput.value = currentValue + 1;
-        }
-    });
+    if(plusBtn && minusBtn && qtyInput) {
+        plusBtn.addEventListener('click', function() {
+            let currentValue = parseInt(qtyInput.value);
+            if (currentValue < 99) {
+                qtyInput.value = currentValue + 1;
+            }
+        });
 
-    minusBtn.addEventListener('click', function() {
-        let currentValue = parseInt(qtyInput.value);
-        if (currentValue > 1) {
-            qtyInput.value = currentValue - 1;
-        }
-    });
+        minusBtn.addEventListener('click', function() {
+            let currentValue = parseInt(qtyInput.value);
+            if (currentValue > 1) {
+                qtyInput.value = currentValue - 1;
+            }
+        });
 
-    // Prevent manual input of invalid values
-    qtyInput.addEventListener('change', function() {
-        let value = parseInt(this.value);
-        if (isNaN(value) || value < 1) {
-            this.value = 1;
-        } else if (value > 99) {
-            this.value = 99;
-        }
-    });
+        qtyInput.addEventListener('change', function() {
+            let value = parseInt(this.value);
+            if (isNaN(value) || value < 1) {
+                this.value = 1;
+            } else if (value > 99) {
+                this.value = 99;
+            }
+        });
+    }
 });
 </script>
-
 
 </body>
 </html>

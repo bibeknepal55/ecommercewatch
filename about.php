@@ -30,7 +30,7 @@ include 'components/wishlist_cart.php';
       <!-- Hero Section -->
       <div class="about-hero">
          <div class="hero-content">
-            <h1>About <i>The Watch Botique</i></h1>
+            <h1>About <i>Watch Online Shop</i></h1>
             <p>Class in Every Tick, Style in Every Click.</p>
          </div>
       </div>

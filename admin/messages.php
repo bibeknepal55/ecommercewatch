@@ -66,7 +66,7 @@ if(isset($_GET['delete'])){
                <td><?= $fetch_message['name']; ?></td>
                <td><?= $fetch_message['email']; ?></td>
                <td><?= $fetch_message['number']; ?></td>
-               <td style="max-width:300px;"><?= $fetch_message['message']; ?></td>
+               <td style="max-width:300px; overflow: scroll;"><?= $fetch_message['message']; ?></td>
                <td>
                   <a href="messages.php?delete=<?= $fetch_message['id']; ?>" class="delete-btn" onclick="return confirm('delete this message?');">Delete</a>
                </td>

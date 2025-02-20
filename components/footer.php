@@ -5,7 +5,7 @@
             <!-- Company Info -->
             <div class="footer-column">
                 <div class="footer-logo">
-                    <h2>The<br>Watch Botique</h2>
+                    <h2>Watch<br>Online Shop</h2>
                 </div>
                 <p class="footer-description">
                     Your Premiere Destination for Luxury Timepieces & Premium Electronics. Quality & Trust Since 2023.
@@ -66,30 +66,18 @@
                     <li>
                         <span><i class="fas fa-envelope"></i></span>
                         <span>
-                            <a href="mailto:info@thewatchbotique.com">info@thewatchbotique.com</a>
+                            <a href="mailto:info@watchonlineshop.com">info@watchonlineshop.com</a>
                         </span>
                     </li>
                 </ul>
             </div>
         </div>
 
-        <!-- Newsletter Section
-        <div class="footer-newsletter">
-            <div class="newsletter-content">
-                <h3>Subscribe to Our Newsletter</h3>
-                <p>Stay updated with our latest products and offers</p>
-                <form class="newsletter-form">
-                    <input type="email" placeholder="Enter your email address">
-                    <button type="submit">Subscribe</button>
-                </form>
-            </div>
-        </div> -->
-
-        <!-- Bottom Footer -->
+      
         <div class="footer-bottom">
             <div class="footer-info">
                 <p class="copyright">
-                    &copy; <?= date('Y'); ?> The Watch Botique. All rights reserved by <span>Anish Gautam | Bibek Nepal</span>
+                    &copy; <?= date('Y'); ?> Watch Online Shop. All rights reserved by <span>Anish Gautam | Bibek Nepal</span>
                 </p>
                 <div class="footer-payment">
                     <span>We Accept:</span>

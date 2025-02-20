@@ -7,6 +7,43 @@ if(isset($_SESSION['user_id'])){
    $user_id = '';
 };
 include 'components/wishlist_cart.php';
+
+
+// Handle AJAX requests
+if(isset($_POST['action']) && !empty($user_id)) {
+    $pid = $_POST['pid'];
+    $name = $_POST['name'];
+    $price = $_POST['price'];
+    $image = $_POST['image'];
+    $qty = $_POST['qty'];
+    
+    if($_POST['action'] == 'add_to_cart') {
+        $check_cart_numbers = $conn->prepare("SELECT * FROM `cart` WHERE name = ? AND user_id = ?");
+        $check_cart_numbers->execute([$name, $user_id]);
+
+        if($check_cart_numbers->rowCount() > 0){
+            echo 'already added to cart!';
+        }else{
+            $insert_cart = $conn->prepare("INSERT INTO `cart`(user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
+            $insert_cart->execute([$user_id, $pid, $name, $price, $qty, $image]);
+            echo 'added to cart!';
+        }
+    }
+    
+    if($_POST['action'] == 'add_to_wishlist') {
+        $check_wishlist_numbers = $conn->prepare("SELECT * FROM `wishlist` WHERE name = ? AND user_id = ?");
+        $check_wishlist_numbers->execute([$name, $user_id]);
+
+        if($check_wishlist_numbers->rowCount() > 0){
+            echo 'already added to wishlist!';
+        }else{
+            $insert_wishlist = $conn->prepare("INSERT INTO `wishlist`(user_id, pid, name, price, image) VALUES(?,?,?,?,?)");
+            $insert_wishlist->execute([$user_id, $pid, $name, $price, $image]);
+            echo 'added to wishlist!';
+        }
+    }
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -15,7 +52,7 @@ include 'components/wishlist_cart.php';
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>The Watch Botique</title>
+   <title>Watch Online Shop</title>
    
    <!-- Font Awesome -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
@@ -31,7 +68,7 @@ include 'components/wishlist_cart.php';
 <!-- Hero Section -->
 <section class="hero">
     <div class="hero-content">
-        <h1>The Watch Botique</h1>
+        <h1>Watch Online Shop</h1>
         <p>Class in Every Tick, Style in Every Click.</p>
         <a href="shop.php" class="cta-button">Shop Now</a>
     </div>
@@ -69,7 +106,8 @@ include 'components/wishlist_cart.php';
     </div>
 </section> -->
 
-<!-- Featured Products -->
+<!-- Previous PHP code remains the same until the products section -->
+
 <section class="featured-products">
     <div class="section-header">
         <h2>Featured Products</h2>
@@ -83,7 +121,6 @@ include 'components/wishlist_cart.php';
             while($fetch_product = $select_products->fetch(PDO::FETCH_ASSOC)){
         ?>
         <div class="product-card">
-            
             <form action="" method="post" class="product-form">
                 <input type="hidden" name="pid" value="<?= $fetch_product['id']; ?>">
                 <input type="hidden" name="name" value="<?= $fetch_product['name']; ?>">
@@ -91,9 +128,9 @@ include 'components/wishlist_cart.php';
                 <input type="hidden" name="image" value="<?= $fetch_product['image_01']; ?>">
                 
                 <div class="product-image">
-                    <img src="uploaded_img/<?= $fetch_product['image_01']; ?>" alt="<?= $fetch_product['name']; ?>">
+                    <img src="uploaded_img/<?= htmlspecialchars($fetch_product['image_01']); ?>" alt="<?= htmlspecialchars($fetch_product['name']); ?>">
                     <div class="product-actions">
-                        <button type="submit" name="add_to_wishlist" class="action-btn">
+                        <button type="button" class="action-btn wishlist-btn">
                             <i class="fas fa-heart"></i>
                         </button>
                         <a href="quick_view.php?pid=<?= $fetch_product['id']; ?>" class="action-btn">
@@ -103,15 +140,15 @@ include 'components/wishlist_cart.php';
                 </div>
                 
                 <div class="product-info">
-                    <h3 class="product-name"><?= $fetch_product['name']; ?></h3>
+                    <h3 class="product-name"><?= htmlspecialchars($fetch_product['name']); ?></h3>
                     <div class="product-price">
-                        <span class="price">Nrs. <?= number_format($fetch_product['price']); ?>/-
+                        <span class="price">Nrs. <?= number_format($fetch_product['price']); ?>/-</span>
                     </div>
                     <div class="product-footer">
                         <div class="quantity">
                             <input type="number" name="qty" class="qty-input" min="1" max="99" value="1">
                         </div>
-                        <button type="submit" name="add_to_cart" class="add-to-cart">
+                        <button type="button" class="add-to-cart">
                             Add to Cart
                         </button>
                     </div>
@@ -164,6 +201,92 @@ include 'components/wishlist_cart.php';
 <?php include 'components/footer.php'; ?>
 
 <script src="js/script.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('.product-form');
+    
+    forms.forEach(form => {
+        // Wishlist button handler
+        const wishlistBtn = form.querySelector('.wishlist-btn');
+        if(wishlistBtn) {
+            wishlistBtn.onclick = function(e) {
+                e.preventDefault();
+                handleAction(form, 'add_to_wishlist');
+            };
+        }
+
+        // Cart button handler
+        const cartBtn = form.querySelector('.add-to-cart');
+        if(cartBtn) {
+            cartBtn.onclick = function(e) {
+                e.preventDefault();
+                handleAction(form, 'add_to_cart');
+            };
+        }
+    });
+
+    function updateHeaderCounts(type) {
+        // Get all count elements (there might be multiple in the header)
+        if(type === 'cart') {
+            const cartCounts = document.querySelectorAll('.cart-count, .count[data-type="cart"]');
+            cartCounts.forEach(count => {
+                let currentCount = parseInt(count.textContent) || 0;
+                count.textContent = currentCount + 1;
+            });
+        } else if(type === 'wishlist') {
+            const wishlistCounts = document.querySelectorAll('.wishlist-count, .count[data-type="wishlist"]');
+            wishlistCounts.forEach(count => {
+                let currentCount = parseInt(count.textContent) || 0;
+                count.textContent = currentCount + 1;
+            });
+        }
+    }
+
+    function handleAction(form, action) {
+        if('<?= $user_id ?>' === '') {
+            showMessage('please login first!', true);
+            return;
+        }
+
+        const formData = new FormData(form);
+        formData.append('action', action);
+
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            showMessage(data);
+            // Update counts only if item was successfully added (not "already added")
+            if (!data.includes('already')) {
+                if (action === 'add_to_cart') {
+                    updateHeaderCounts('cart');
+                } else if (action === 'add_to_wishlist') {
+                    updateHeaderCounts('wishlist');
+                }
+            }
+        })
+        .catch(error => {
+            showMessage('something went wrong!', true);
+            console.error('Error:', error);
+        });
+    }
+
+    function showMessage(msg) {
+        const message = document.createElement('div');
+        message.className = 'message';
+        message.innerHTML = `
+            <span>${msg}</span>
+            <i class="fas fa-times" onclick="this.parentElement.remove();"></i>
+        `;
+        document.body.appendChild(message);
+        setTimeout(() => message.remove(), 3000);
+    }
+});
+</script>
+
 
 </body>
 </html>

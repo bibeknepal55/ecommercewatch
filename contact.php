@@ -12,24 +12,22 @@ if(isset($_POST['send'])){
    $name = $_POST['name'];
    $email = $_POST['email'];
    $number = $_POST['number'];
-   $subject = $_POST['subject'];
    $msg = $_POST['msg'];
 
    // Validate inputs
    $name = filter_var($name, FILTER_SANITIZE_STRING);
    $email = filter_var($email, FILTER_SANITIZE_EMAIL);
    $number = filter_var($number, FILTER_SANITIZE_STRING);
-   $subject = filter_var($subject, FILTER_SANITIZE_STRING);
    $msg = filter_var($msg, FILTER_SANITIZE_STRING);
 
-   $select_message = $conn->prepare("SELECT * FROM `messages` WHERE name = ? AND email = ? AND number = ? AND subject = ? AND message = ?");
-   $select_message->execute([$name, $email, $number, $subject, $msg]);
+   $select_message = $conn->prepare("SELECT * FROM `messages` WHERE name = ? AND email = ? AND number = ? AND message = ?");
+   $select_message->execute([$name, $email, $number, $msg]);
 
    if($select_message->rowCount() > 0){
       $message[] = 'Message already sent!';
    }else{
-      $insert_message = $conn->prepare("INSERT INTO `messages`(user_id, name, email, number, subject, message) VALUES(?,?,?,?,?,?)");
-      $insert_message->execute([$user_id, $name, $email, $number, $subject, $msg]);
+      $insert_message = $conn->prepare("INSERT INTO `messages`(user_id, name, email, number, message) VALUES(?,?,?,?,?)");
+      $insert_message->execute([$user_id, $name, $email, $number, $msg]);
       if($insert_message){
          $message[] = 'Message sent successfully!';
       }else{
@@ -133,11 +131,7 @@ if(isset($message)){
                          onkeypress="if(this.value.length == 10) return false;">
                </div>
 
-               <div class="form-group">
-                  <label for="subject">Subject</label>
-                  <input type="text" name="subject" id="subject" required maxlength="100" 
-                         placeholder="Message subject" class="form-control">
-               </div>
+               
 
                <div class="form-group">
                   <label for="msg">Your Message</label>

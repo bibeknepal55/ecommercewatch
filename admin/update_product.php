@@ -97,13 +97,158 @@ if(isset($_POST['update'])){
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 
    <link rel="stylesheet" href="../css/admin_style.css">
+   <style>
+    .update-form {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Row Styles */
+.form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* Input Box Styles */
+.inputBox {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.inputBox.full-width {
+    width: 100%;
+}
+
+.inputBox span {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 500;
+}
+
+/* Input Styles */
+.box {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.box:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+/* Textarea Styles */
+textarea.box {
+    min-height: 200px;
+    resize: vertical;
+    width: 100%;
+}
+
+/* Images Grid */
+.images-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.image-box {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Image Preview Styles */
+.image-preview {
+    width: 100%;
+    height: 200px;
+    border: 2px dashed #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f9f9f9;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* File Input Styles */
+.file-input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f9f9f9;
+}
+
+/* Button Styles */
+.flex-btn {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.btn, .option-btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn {
+    background: #4CAF50;
+    color: white;
+}
+
+.btn:hover {
+    background: #45a049;
+}
+
+.option-btn {
+    background: #f44336;
+    color: white;
+}
+
+.option-btn:hover {
+    background: #da190b;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+    }
+
+    .images-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+   </style>
 
 </head>
 <body>
 
 <?php include '../components/admin_header.php'; ?>
 
-<section class="update-product">
+<section class="add-products">
 
    <h1 class="heading">Update Product</h1>
 
@@ -114,38 +259,79 @@ if(isset($_POST['update'])){
       if($select_products->rowCount() > 0){
          while($fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)){ 
    ?>
-   <form action="" method="post" enctype="multipart/form-data">
-      <input type="hidden" name="pid" value="<?= $fetch_products['id']; ?>">
-      <input type="hidden" name="old_image_01" value="<?= $fetch_products['image_01']; ?>">
-      <input type="hidden" name="old_image_02" value="<?= $fetch_products['image_02']; ?>">
-      <input type="hidden" name="old_image_03" value="<?= $fetch_products['image_03']; ?>">
-      <div class="image-container">
-         <div class="main-image">
-            <img src="../uploaded_img/<?= $fetch_products['image_01']; ?>" alt="">
-         </div>
-         <div class="sub-image">
-            <img src="../uploaded_img/<?= $fetch_products['image_01']; ?>" alt="">
-            <img src="../uploaded_img/<?= $fetch_products['image_02']; ?>" alt="">
-            <img src="../uploaded_img/<?= $fetch_products['image_03']; ?>" alt="">
-         </div>
-      </div>
-      <span>Update Name</span>
-      <input type="text" name="name" required class="box" maxlength="100" placeholder="enter product name" value="<?= $fetch_products['name']; ?>">
-      <span>Update Price</span>
-      <input type="number" name="price" required class="box" min="0" max="9999999999" placeholder="enter product price" onkeypress="if(this.value.length == 10) return false;" value="<?= $fetch_products['price']; ?>">
-      <span>Update Details</span>
-      <textarea name="details" class="box" required cols="30" rows="10"><?= $fetch_products['details']; ?></textarea>
-      <span>Update image 01</span>
-      <input type="file" name="image_01" accept="image/jpg, image/jpeg, image/png, image/webp" class="box">
-      <span>Update image 02</span>
-      <input type="file" name="image_02" accept="image/jpg, image/jpeg, image/png, image/webp" class="box">
-      <span>Update image 03</span>
-      <input type="file" name="image_03" accept="image/jpg, image/jpeg, image/png, image/webp" class="box">
-      <div class="flex-btn">
-         <input type="submit" name="update" class="btn" value="update">
-         <a href="products.php" class="option-btn">Go Back.</a>
-      </div>
-   </form>
+   <form action="" method="post" enctype="multipart/form-data" class="update-form">
+    <input type="hidden" name="pid" value="<?= $fetch_products['id']; ?>">
+    <input type="hidden" name="old_image_01" value="<?= $fetch_products['image_01']; ?>">
+    <input type="hidden" name="old_image_02" value="<?= $fetch_products['image_02']; ?>">
+    <input type="hidden" name="old_image_03" value="<?= $fetch_products['image_03']; ?>">
+    
+    <!-- First Row: Name and Price -->
+    <div class="form-row">
+        <div class="inputBox">
+            <span>Product Name (required)</span>
+            <input type="text" class="box" required maxlength="100" 
+                   placeholder="enter product name" name="name" 
+                   value="<?= $fetch_products['name']; ?>">
+        </div>
+
+        <div class="inputBox">
+            <span>Product Price (required)</span>
+            <input type="number" min="0" class="box" required 
+                   max="9999999999" placeholder="enter product price" 
+                   onkeypress="if(this.value.length == 10) return false;" 
+                   name="price" value="<?= $fetch_products['price']; ?>">
+        </div>
+    </div>
+
+    <!-- Second Row: Description -->
+    <div class="form-row">
+        <div class="inputBox full-width">
+            <span>Product Details (required)</span>
+            <textarea name="details" class="box" required 
+                      placeholder="enter product details"><?= $fetch_products['details']; ?></textarea>
+        </div>
+    </div>
+
+    <!-- Third Row: Images -->
+    <div class="images-grid">
+        <div class="image-box">
+            <span>Image 01</span>
+            <div class="image-preview">
+                <img src="../uploaded_img/<?= $fetch_products['image_01']; ?>" alt="">
+            </div>
+            <input type="file" name="image_01" 
+                   accept="image/jpg, image/jpeg, image/png, image/webp" 
+                   class="file-input">
+        </div>
+
+        <div class="image-box">
+            <span>Image 02</span>
+            <div class="image-preview">
+                <img src="../uploaded_img/<?= $fetch_products['image_02']; ?>" alt="">
+            </div>
+            <input type="file" name="image_02" 
+                   accept="image/jpg, image/jpeg, image/png, image/webp" 
+                   class="file-input">
+        </div>
+
+        <div class="image-box">
+            <span>Image 03</span>
+            <div class="image-preview">
+                <img src="../uploaded_img/<?= $fetch_products['image_03']; ?>" alt="">
+            </div>
+            <input type="file" name="image_03" 
+                   accept="image/jpg, image/jpeg, image/png, image/webp" 
+                   class="file-input">
+        </div>
+    </div>
+
+    <div class="flex-btn">
+        <input type="submit" name="update" class="btn" value="Update Product">
+        <a href="products.php" class="option-btn">Go Back</a>
+    </div>
+</form>
+
+
    
    <?php
          }

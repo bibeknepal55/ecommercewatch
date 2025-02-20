@@ -1365,10 +1365,17 @@ button.fas.fa-search:hover {
    display: none;
    z-index: 100;
 }
+/* Your existing hover styles */
 
 .user-menu:hover .user-dropdown {
    display: block;
+} 
+
+/* New class for click functionality */
+.dropdown-active {
+   display: block !important;
 }
+
 
 .user-info {
    display: flex;
@@ -4954,4 +4961,56 @@ textarea.form-control {
        flex-direction: column;
        gap: 0.5rem;
    }
+}
+
+
+
+.notification {
+   position: fixed;
+   top: 20px;
+   right: 20px;
+   padding: 15px 25px;
+   border-radius: 4px;
+   z-index: 9999;
+   display: none;
+   animation: slideIn 0.5s ease-in-out;
+}
+
+.notification.success {
+   background: #28a745;
+   color: white;
+}
+
+.notification.error {
+   background: #dc3545;
+   color: white;
+}
+
+@keyframes slideIn {
+   from {
+      transform: translateX(100%);
+      opacity: 0;
+   }
+   to {
+      transform: translateX(0);
+      opacity: 1;
+   }
+}
+
+.password-requirements {
+   margin: 10px 0;
+   font-size: 0.9rem;
+   color: #666;
+}
+
+.requirement {
+   margin: 5px 0;
+}
+
+.requirement.valid {
+   color: #28a745;
+}
+
+.requirement.invalid {
+   color: #dc3545;
 }
