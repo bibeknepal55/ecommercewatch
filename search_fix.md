@@ -1,4 +1,4 @@
-## Search Feature Fixes
+## Search Feature Fixess
 
 The search functionality has been updated with the following improvements:
 
