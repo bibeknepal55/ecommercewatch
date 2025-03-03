@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     stockSpan.style.color = 'red';
                     stockSpan.textContent = `In Stock: ${maxQty}`;
                 } else if (maxQty < 5) {
-                    stockSpan.style.color = 'yellow';
+                    stockSpan.style.color = '#f67800';
                     stockSpan.textContent = `Low Stock: ${maxQty}`;
                 } else {
                     stockSpan.style.color = 'green';

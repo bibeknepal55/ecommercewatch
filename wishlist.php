@@ -30,17 +30,23 @@ if(isset($_POST['add_to_cart'])){
    $check_cart_numbers = $conn->prepare("SELECT * FROM `cart` WHERE pid = ? AND user_id = ?");
    $check_cart_numbers->execute([$pid, $user_id]);
 
-   if($check_cart_numbers->rowCount() > 0){
-      $message[] = 'Already added to cart!';
-   }else{
-      try {
-         // Insert into cart
-         $insert_cart = $conn->prepare("INSERT INTO `cart`(user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
-         $insert_cart->execute([$user_id, $pid, $name, $price, $qty, $image]);
-         $message[] = 'Added to cart successfully!';
-      } catch(PDOException $e) {
-         $message[] = 'Error adding to cart: ' . $e->getMessage();
-      }
+   $check_stock = $conn->prepare("SELECT stock FROM `products` WHERE id = ?");
+   $check_stock->execute([$pid]);
+   $product_stock = $check_stock->fetch(PDO::FETCH_ASSOC)['stock'];
+
+   if($product_stock < $qty) {
+       $message[] = 'Not enough stock!';
+   } elseif($check_cart_numbers->rowCount() > 0) {
+       $message[] = 'Already added to cart!';
+   } else {
+       try {
+           // Insert into cart
+           $insert_cart = $conn->prepare("INSERT INTO `cart`(user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
+           $insert_cart->execute([$user_id, $pid, $name, $price, $qty, $image]);
+           $message[] = 'Added to cart successfully!';
+       } catch(PDOException $e) {
+           $message[] = 'Error adding to cart: ' . $e->getMessage();
+       }
    }
 }
 
@@ -98,27 +104,41 @@ if(isset($_GET['delete_all'])){
                </div>
 
                <div class="wishlist-info">
-                  <h3 class="product-name"><?= $fetch_wishlist['name']; ?></h3>
+                  <h3 class="product-name"><?= htmlspecialchars($fetch_wishlist['name']); ?></h3>
                   <div class="price">
                      <span class="currency">Nrs.</span>
                      <span class="amount"><?= number_format($fetch_wishlist['price']); ?></span>
                   </div>
                   
+                  <div class="product-stock">
+                     <?php
+                     $check_stock = $conn->prepare("SELECT stock FROM `products` WHERE id = ?");
+                     $check_stock->execute([$fetch_wishlist['pid']]);
+                     $product_stock = $check_stock->fetch(PDO::FETCH_ASSOC)['stock'];
+                     ?>
+                     <?php if ($product_stock == 0): ?>
+                           <span class="stock out-of-stock" style="color: red;">Out of Stock</span>
+                     <?php elseif ($product_stock < 5): ?>
+                           <span class="stock low-stock" style="color: #f67800;">Low Stock: <?= $product_stock; ?></span>
+                     <?php endif; ?>
+                  </div>
+                  
                   <div class="wishlist-actions">
                      <a href="quick_view.php?pid=<?= $fetch_wishlist['pid']; ?>" class="view-btn">
-                        <i class="fas fa-eye"></i>
-                        <span>View Details</span>
+                           <i class="fas fa-eye"></i>
+                           <span>View Details</span>
                      </a>
                      
                      <form action="" method="post" class="cart-form">
-                        <input type="hidden" name="pid" value="<?= $fetch_wishlist['pid']; ?>">
-                        <input type="hidden" name="name" value="<?= $fetch_wishlist['name']; ?>">
-                        <input type="hidden" name="price" value="<?= $fetch_wishlist['price']; ?>">
-                        <input type="hidden" name="image" value="<?= $fetch_wishlist['image']; ?>">
-                        <button type="submit" name="add_to_cart" class="cart-btn">
-                           <i class="fas fa-shopping-cart"></i>
-                           <span>Add to Cart</span>
-                        </button>
+                           <input type="hidden" name="pid" value="<?= $fetch_wishlist['pid']; ?>">
+                           <input type="hidden" name="name" value="<?= htmlspecialchars($fetch_wishlist['name']); ?>">
+                           <input type="hidden" name="price" value="<?= $fetch_wishlist['price']; ?>">
+                           <input type="hidden" name="image" value="<?= $fetch_wishlist['image']; ?>">
+                           
+                           <button type="submit" name="add_to_cart" class="cart-btn" <?= $product_stock == 0 ? 'disabled' : ''; ?>>
+                              <i class="fas fa-shopping-cart"></i>
+                              <span>Add to Cart</span>
+                           </button>
                      </form>
                   </div>
                </div>
@@ -158,3 +178,89 @@ if(isset($_GET['delete_all'])){
 
 </body>
 </html>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('.cart-form');
+    
+    forms.forEach(form => {
+        const cartBtn = form.querySelector('.cart-btn');
+        if(cartBtn) {
+            cartBtn.onclick = function(e) {
+                e.preventDefault();
+                handleAction(form, 'add_to_cart');
+            };
+        }
+
+        const qtyInput = form.querySelector('.qty-input');
+        if(qtyInput) {
+            qtyInput.oninput = function() {
+                const maxQty = parseInt(qtyInput.max);
+                const currentQty = parseInt(qtyInput.value);
+                const stockSpan = form.closest('.wishlist-info').querySelector('.product-stock span');
+
+                if (currentQty >= maxQty) {
+                    stockSpan.style.color = 'red';
+                    stockSpan.textContent = `In Stock: ${maxQty}`;
+                } else if (maxQty < 5) {
+                    stockSpan.style.color = '#f67800';
+                    stockSpan.textContent = `Low Stock: ${maxQty}`;
+                } else {
+                    stockSpan.style.color = 'green';
+                    stockSpan.textContent = `In Stock: ${maxQty}`;
+                }
+            };
+        }
+    });
+
+    function handleAction(form, action) {
+        if('<?= $user_id ?>' === '') {
+            showMessage('please login first!', true);
+            return;
+        }
+
+        const formData = new FormData(form);
+        formData.append('action', action);
+
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            showMessage(data);
+            if (!data.includes('already') && !data.includes('not enough stock')) {
+                if (action === 'add_to_cart') {
+                    updateHeaderCounts('cart');
+                }
+            }
+        })
+        .catch(error => {
+            showMessage('something went wrong!', true);
+            console.error('Error:', error);
+        });
+    }
+
+    function showMessage(msg) {
+        const message = document.createElement('div');
+        message.className = 'message';
+        message.innerHTML = `
+            <span>${msg}</span>
+            <i class="fas fa-times" onclick="this.parentElement.remove();"></i>
+        `;
+        document.body.appendChild(message);
+        setTimeout(() => message.remove(), 3000);
+    }
+
+    function updateHeaderCounts(type) {
+        if(type === 'cart') {
+            const cartCounts = document.querySelectorAll('.cart-count, .count[data-type="cart"]');
+            cartCounts.forEach(count => {
+                let currentCount = parseInt(count.textContent) || 0;
+                count.textContent = currentCount + 1;
+            });
+        }
+    }
+});
+</script>

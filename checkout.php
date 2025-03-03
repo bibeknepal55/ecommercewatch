@@ -26,6 +26,15 @@ if(isset($_POST['order'])){
       $insert_order = $conn->prepare("INSERT INTO `orders`(user_id, name, number, email, method, address, total_products, total_price) VALUES(?,?,?,?,?,?,?,?)");
       $insert_order->execute([$user_id, $name, $number, $email, $method, $address, $total_products, $total_price]);
 
+      // Decrease stock
+      while($fetch_cart = $check_cart->fetch(PDO::FETCH_ASSOC)){
+         $pid = $fetch_cart['pid'];
+         $quantity = $fetch_cart['quantity'];
+
+         $update_stock = $conn->prepare("UPDATE `products` SET stock = stock - ? WHERE id = ?");
+         $update_stock->execute([$quantity, $pid]);
+      }
+
       $delete_cart = $conn->prepare("DELETE FROM `cart` WHERE user_id = ?");
       $delete_cart->execute([$user_id]);
 
@@ -61,7 +70,7 @@ if(isset($_POST['order'])){
             <i class="fas fa-angle-right"></i>
             <a href="cart.php">Cart</a>
             <i class="fas fa-angle-right"></i>
-            <span>Checkout
+            <span>Checkout</span>
          </div>
       </div>
 
@@ -87,7 +96,7 @@ if(isset($_POST['order'])){
                   <p>Nrs. <?= number_format($fetch_cart['price']); ?> x <?= $fetch_cart['quantity']; ?></p>
                </div>
                <div class="item-total">
-                  Nrs. <?= number_format($fetch_cart['price'] * $fetch_cart['quantity']); ?>/-
+                  Nrs. <?= number_format($fetch_cart['price'] * $fetch_cart['quantity']); ?> /-
                </div>
             </div>
             <?php
@@ -98,16 +107,16 @@ if(isset($_POST['order'])){
             ?>
             <div class="summary-totals">
                <div class="summary-item">
-                  <span>Subtotal
-                  <span>Nrs. <?= number_format($grand_total); ?>/-
+                  <span>Subtotal</span>
+                  <span>Nrs. <?= number_format($grand_total); ?> /-</span>
                </div>
                <div class="summary-item">
-                  <span>Delivery
-                  <span>Free
+                  <span>Delivery</span>
+                  <span>Free</span>
                </div>
                <div class="summary-total">
-                  <span>Total
-                  <span>Nrs. <?= number_format($grand_total); ?>/-
+                  <span>Total</span>
+                  <span>Nrs. <?= number_format($grand_total); ?> /-</span>
                </div>
             </div>
          </div>
@@ -121,21 +130,17 @@ if(isset($_POST['order'])){
                
                <div class="form-group">
                   <label for="name">Full Name</label>
-                  <input type="text" name="name" id="name" required placeholder="Enter your name" 
-                         class="form-control">
+                  <input type="text" name="name" id="name" required placeholder="Enter your name" class="form-control">
                </div>
 
                <div class="form-group">
                   <label for="number">Phone Number</label>
-                  <input type="number" name="number" id="number" required placeholder="Enter your number" 
-                         class="form-control" min="0" max="9999999999" 
-                         onkeypress="if(this.value.length == 10) return false;">
+                  <input type="number" name="number" id="number" required placeholder="Enter your number" class="form-control" min="0" max="9999999999" onkeypress="if(this.value.length == 10) return false;">
                </div>
 
                <div class="form-group">
                   <label for="email">Email</label>
-                  <input type="email" name="email" id="email" required placeholder="Enter your email" 
-                         class="form-control">
+                  <input type="email" name="email" id="email" required placeholder="Enter your email" class="form-control">
                </div>
 
                <div class="form-group">
@@ -151,12 +156,10 @@ if(isset($_POST['order'])){
 
                <div class="form-group">
                   <label for="address">Delivery Address</label>
-                  <textarea name="address" id="address" class="form-control" required 
-                            placeholder="Enter your address" rows="4"></textarea>
+                  <textarea name="address" id="address" class="form-control" required placeholder="Enter your address" rows="4"></textarea>
                </div>
 
-               <button type="submit" name="order" class="place-order-btn" 
-                       <?= ($grand_total > 1)?'':'disabled' ?>>
+               <button type="submit" name="order" class="place-order-btn" <?= ($grand_total > 1)?'':'disabled' ?>>
                   Place Order <i class="fas fa-arrow-right"></i>
                </button>
             </form>

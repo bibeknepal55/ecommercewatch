@@ -18,6 +18,8 @@ if(isset($_POST['add_product'])){
    $price = filter_var($price, FILTER_SANITIZE_STRING);
    $details = $_POST['details'];
    $details = filter_var($details, FILTER_SANITIZE_STRING);
+   $stock = $_POST['stock'];
+   $stock = filter_var($stock, FILTER_SANITIZE_STRING);
 
    $image_01 = $_FILES['image_01']['name'];
    $image_01 = filter_var($image_01, FILTER_SANITIZE_STRING);
@@ -44,8 +46,8 @@ if(isset($_POST['add_product'])){
       $message[] = 'product name already exist!';
    }else{
 
-      $insert_products = $conn->prepare("INSERT INTO `products`(name, details, price, image_01, image_02, image_03) VALUES(?,?,?,?,?,?)");
-      $insert_products->execute([$name, $details, $price, $image_01, $image_02, $image_03]);
+      $insert_products = $conn->prepare("INSERT INTO `products`(name, details, price, stock, image_01, image_02, image_03) VALUES(?,?,?,?,?,?,?)");
+      $insert_products->execute([$name, $details, $price, $stock, $image_01, $image_02, $image_03]);
 
       if($insert_products){
          if($image_size_01 > 2000000 OR $image_size_02 > 2000000 OR $image_size_03 > 2000000){
@@ -106,15 +108,19 @@ if(isset($_GET['delete'])){
    <h1 class="heading">Add Product</h1>
 
    <form action="" method="post" enctype="multipart/form-data">
-      <div class="flex">
-         <div class="inputBox">
+    <div class="flex">
+        <div class="inputBox">
             <span>Product Name (required)</span>
             <input type="text" class="box" required maxlength="100" placeholder="enter product name" name="name">
-         </div>
-         <div class="inputBox">
+        </div>
+        <div class="inputBox">
             <span>Product Price (required)</span>
             <input type="number" min="0" class="box" required max="9999999999" placeholder="enter product price" onkeypress="if(this.value.length == 10) return false;" name="price">
-         </div>
+        </div>
+        <div class="inputBox">
+            <span>Stock Quantity (required)</span>
+            <input type="number" min="0" class="box" required max="9999999999" placeholder="enter stock quantity" name="stock">
+        </div>
         <div class="inputBox">
             <span>Image 01 (required)</span>
             <input type="file" name="image_01" accept="image/jpg, image/jpeg, image/png, image/webp" class="box" required>
@@ -127,14 +133,13 @@ if(isset($_GET['delete'])){
             <span>Image 03 (required)</span>
             <input type="file" name="image_03" accept="image/jpg, image/jpeg, image/png, image/webp" class="box" required>
         </div>
-         <div class="inputBox">
+        <div class="inputBox">
             <span>Product description (required)</span>
             <textarea name="details" placeholder="enter product details" class="box" required maxlength="500" cols="30" rows="10"></textarea>
-         </div>
-      </div>
-      
-      <input type="submit" value="add product" class="btn" name="add_product">
-   </form>
+        </div>
+    </div>
+    <input type="submit" value="add product" class="btn" name="add_product">
+</form>
 
 </section>
 
@@ -154,6 +159,7 @@ if(isset($_GET['delete'])){
       <img src="../uploaded_img/<?= $fetch_products['image_01']; ?>" alt="">
       <div class="name"><?= $fetch_products['name']; ?></div>
       <div class="price">Nrs.<span><?= $fetch_products['price']; ?></span>/-</div>
+      <div class="stock" style = "font-size:medium;">Stock: <span><?= $fetch_products['stock']; ?></span></div>
       <div class="details"><span><?= $fetch_products['details']; ?></span></div>
       <div class="flex-btn">
          <a href="update_product.php?update=<?= $fetch_products['id']; ?>" class="option-btn">update</a>

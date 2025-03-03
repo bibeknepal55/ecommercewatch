@@ -21,10 +21,16 @@ if(isset($_POST['action']) && !empty($user_id)) {
     if($_POST['action'] == 'add_to_cart') {
         $check_cart_numbers = $conn->prepare("SELECT * FROM `cart` WHERE name = ? AND user_id = ?");
         $check_cart_numbers->execute([$name, $user_id]);
-
-        if($check_cart_numbers->rowCount() > 0){
+    
+        $check_stock = $conn->prepare("SELECT stock FROM `products` WHERE id = ?");
+        $check_stock->execute([$pid]);
+        $product_stock = $check_stock->fetch(PDO::FETCH_ASSOC)['stock'];
+    
+        if($product_stock < $qty) {
+            echo 'not enough stock!';
+        } elseif($check_cart_numbers->rowCount() > 0) {
             echo 'already added to cart!';
-        }else{
+        } else {
             $insert_cart = $conn->prepare("INSERT INTO `cart`(user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
             $insert_cart->execute([$user_id, $pid, $name, $price, $qty, $image]);
             echo 'added to cart!';
@@ -101,7 +107,7 @@ if(isset($_GET['pid'])){
             <!-- Product Info -->
             <div class="quick-view-info">
                 <div class="quick-view-header">
-                    <h1 class="quick-view-title"><?= $fetch_product['name']; ?></h1>
+                    <h1 class="quick-view-title"><?= htmlspecialchars($fetch_product['name']); ?></h1>
                     <div class="quick-view-price">
                         <span class="quick-view-current-price">Nrs. <?= number_format($fetch_product['price']); ?>/-</span>
                     </div>
@@ -109,26 +115,34 @@ if(isset($_GET['pid'])){
 
                 <div class="quick-view-description">
                     <h3>Description</h3>
-                    <p><?= $fetch_product['details']; ?></p>
+                    <p><?= htmlspecialchars($fetch_product['details']); ?></p>
                 </div>
 
                 <form action="" method="post" class="product-form">
                     <input type="hidden" name="pid" value="<?= $fetch_product['id']; ?>">
-                    <input type="hidden" name="name" value="<?= $fetch_product['name']; ?>">
+                    <input type="hidden" name="name" value="<?= htmlspecialchars($fetch_product['name']); ?>">
                     <input type="hidden" name="price" value="<?= $fetch_product['price']; ?>">
                     <input type="hidden" name="image" value="<?= $fetch_product['image_01']; ?>">
-                    
+
                     <div class="quick-view-quantity">
                         <label>Quantity:</label>
                         <div class="quick-view-quantity-controls">
                             <button type="button" class="quick-view-qty-btn minus">-</button>
-                            <input type="number" name="qty" class="quick-view-qty-input" min="1" max="99" value="1">
+                            <input type="number" name="qty" class="quick-view-qty-input" min="1" max="<?= $fetch_product['stock']; ?>" value="1" <?= $fetch_product['stock'] == 0 ? 'disabled' : ''; ?>>
                             <button type="button" class="quick-view-qty-btn plus">+</button>
                         </div>
                     </div>
 
+                    <div class="product-stock">
+                        <?php if ($fetch_product['stock'] == 0): ?>
+                            <span class="stock out-of-stock" style="color: red;">Out of Stock</span>
+                        <?php elseif ($fetch_product['stock'] < 5): ?>
+                            <span class="stock low-stock" style="color: #f67800;">Low Stock: <?= $fetch_product['stock']; ?></span>
+                        <?php endif; ?>
+                    </div>
+
                     <div class="quick-view-actions">
-                        <button type="button" name="add_to_cart" class="quick-view-btn quick-view-btn-primary">
+                        <button type="button" name="add_to_cart" class="quick-view-btn quick-view-btn-primary" <?= $fetch_product['stock'] == 0 ? 'disabled' : ''; ?>>
                             <i class="fas fa-shopping-cart"></i>
                             Add to Cart
                         </button>
@@ -215,8 +229,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.text())
         .then(data => {
             showMessage(data);
-            // Update counts only if item was successfully added (not "already added")
-            if (!data.includes('already')) {
+            // Update counts only if item was successfully added (not "already added" or "not enough stock")
+            if (!data.includes('already') && !data.includes('not enough stock')) {
                 if (action === 'add_to_cart') {
                     updateHeaderCounts('cart');
                 } else if (action === 'add_to_wishlist') {
@@ -258,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if(plusBtn && minusBtn && qtyInput) {
         plusBtn.addEventListener('click', function() {
             let currentValue = parseInt(qtyInput.value);
-            if (currentValue < 99) {
+            if (currentValue < parseInt(qtyInput.max)) {
                 qtyInput.value = currentValue + 1;
             }
         });
@@ -274,8 +288,8 @@ document.addEventListener('DOMContentLoaded', function() {
             let value = parseInt(this.value);
             if (isNaN(value) || value < 1) {
                 this.value = 1;
-            } else if (value > 99) {
-                this.value = 99;
+            } else if (value > parseInt(this.max)) {
+                this.value = this.max;
             }
         });
     }
