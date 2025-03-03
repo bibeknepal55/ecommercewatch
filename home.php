@@ -20,10 +20,16 @@ if(isset($_POST['action']) && !empty($user_id)) {
     if($_POST['action'] == 'add_to_cart') {
         $check_cart_numbers = $conn->prepare("SELECT * FROM `cart` WHERE name = ? AND user_id = ?");
         $check_cart_numbers->execute([$name, $user_id]);
-
-        if($check_cart_numbers->rowCount() > 0){
+    
+        $check_stock = $conn->prepare("SELECT stock FROM `products` WHERE id = ?");
+        $check_stock->execute([$pid]);
+        $product_stock = $check_stock->fetch(PDO::FETCH_ASSOC)['stock'];
+    
+        if($product_stock < $qty) {
+            echo 'not enough stock!';
+        } elseif($check_cart_numbers->rowCount() > 0) {
             echo 'already added to cart!';
-        }else{
+        } else {
             $insert_cart = $conn->prepare("INSERT INTO `cart`(user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
             $insert_cart->execute([$user_id, $pid, $name, $price, $qty, $image]);
             echo 'added to cart!';
@@ -144,11 +150,19 @@ if(isset($_POST['action']) && !empty($user_id)) {
                     <div class="product-price">
                         <span class="price">Nrs. <?= number_format($fetch_product['price']); ?>/-</span>
                     </div>
+                    <div class="product-stock">
+                        <?php if ($fetch_product['stock'] == 0): ?>
+                            <span class="stock out-of-stock" style="color: red;">Out of Stock</span>
+                        <?php elseif ($fetch_product['stock'] < 5): ?>
+                            <span class="stock low-stock" style="color: #f67800;">Low Stock: <?= $fetch_product['stock']; ?></span>
+                        
+                        <?php endif; ?>
+                    </div>
                     <div class="product-footer">
                         <div class="quantity">
-                            <input type="number" name="qty" class="qty-input" min="1" max="99" value="1">
+                            <input type="number" name="qty" class="qty-input" min="1" max="<?= $fetch_product['stock']; ?>" value="1" <?= $fetch_product['stock'] == 0 ? 'disabled' : ''; ?>>
                         </div>
-                        <button type="button" class="add-to-cart">
+                        <button type="button" class="add-to-cart" <?= $fetch_product['stock'] == 0 ? 'disabled' : ''; ?>>
                             Add to Cart
                         </button>
                     </div>
@@ -224,6 +238,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 handleAction(form, 'add_to_cart');
             };
         }
+
+        // Quantity input handler
+        const qtyInput = form.querySelector('.qty-input');
+        if(qtyInput) {
+            qtyInput.oninput = function() {
+                const maxQty = parseInt(qtyInput.max);
+                const currentQty = parseInt(qtyInput.value);
+                const stockSpan = form.querySelector('.product-stock span');
+
+                if (currentQty >= maxQty) {
+                    stockSpan.style.color = 'red';
+                    stockSpan.textContent = `In Stock: ${maxQty}`;
+                } else if (maxQty < 5) {
+                    stockSpan.style.color = 'yellow';
+                    stockSpan.textContent = `Low Stock: ${maxQty}`;
+                } else {
+                    stockSpan.style.color = 'green';
+                    stockSpan.textContent = `In Stock: ${maxQty}`;
+                }
+            };
+        }
     });
 
     function updateHeaderCounts(type) {
@@ -259,8 +294,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.text())
         .then(data => {
             showMessage(data);
-            // Update counts only if item was successfully added (not "already added")
-            if (!data.includes('already')) {
+            // Update counts only if item was successfully added (not "already added" or "not enough stock")
+            if (!data.includes('already') && !data.includes('not enough stock')) {
                 if (action === 'add_to_cart') {
                     updateHeaderCounts('cart');
                 } else if (action === 'add_to_wishlist') {
